@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="10"/>
+    <BuildModes Active="Default"/>
+    <Units Count="4">
+      <Unit0>
+        <Filename Value="SpriteED.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
+        <TopLine Value="-1"/>
+        <CursorPos X="-1" Y="-1"/>
+        <UsageCount Value="20"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="mainunit.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmMain"/>
+        <ResourceBaseClass Value="Form"/>
+        <TopLine Value="29"/>
+        <CursorPos X="18" Y="47"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="editor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmEditor"/>
+        <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="57"/>
+        <CursorPos X="82" Y="77"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="/usr/lib/lazarus/1.8.2/lcl/lclproc.pas"/>
+        <UnitName Value="LCLProc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="905"/>
+        <CursorPos Y="916"/>
+        <UsageCount Value="10"/>
+      </Unit3>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="editor.pas"/>
+        <Caret Line="62" Column="17" TopLine="56"/>
+      </Position1>
+      <Position2>
+        <Filename Value="editor.pas"/>
+        <Caret Line="61" Column="17" TopLine="55"/>
+      </Position2>
+      <Position3>
+        <Filename Value="editor.pas"/>
+        <Caret Line="60" Column="17" TopLine="54"/>
+      </Position3>
+      <Position4>
+        <Filename Value="editor.pas"/>
+        <Caret Line="59" Column="17" TopLine="53"/>
+      </Position4>
+      <Position5>
+        <Filename Value="editor.pas"/>
+        <Caret Line="58" Column="17" TopLine="52"/>
+      </Position5>
+      <Position6>
+        <Filename Value="editor.pas"/>
+        <Caret Line="57" Column="17" TopLine="51"/>
+      </Position6>
+      <Position7>
+        <Filename Value="editor.pas"/>
+        <Caret Line="56" Column="17" TopLine="50"/>
+      </Position7>
+      <Position8>
+        <Filename Value="editor.pas"/>
+        <Caret Line="55" Column="17" TopLine="49"/>
+      </Position8>
+      <Position9>
+        <Filename Value="editor.pas"/>
+        <Caret Line="54" Column="17" TopLine="48"/>
+      </Position9>
+      <Position10>
+        <Filename Value="editor.pas"/>
+        <Caret Line="53" Column="17" TopLine="47"/>
+      </Position10>
+      <Position11>
+        <Filename Value="editor.pas"/>
+        <Caret Line="52" Column="17" TopLine="46"/>
+      </Position11>
+      <Position12>
+        <Filename Value="editor.pas"/>
+        <Caret Line="51" Column="17" TopLine="45"/>
+      </Position12>
+      <Position13>
+        <Filename Value="editor.pas"/>
+        <Caret Line="50" Column="17" TopLine="44"/>
+      </Position13>
+      <Position14>
+        <Filename Value="editor.pas"/>
+        <Caret Line="66" Column="15" TopLine="55"/>
+      </Position14>
+      <Position15>
+        <Filename Value="editor.pas"/>
+        <Caret Line="67" Column="15" TopLine="56"/>
+      </Position15>
+      <Position16>
+        <Filename Value="editor.pas"/>
+        <Caret Line="81" Column="48" TopLine="64"/>
+      </Position16>
+      <Position17>
+        <Filename Value="editor.pas"/>
+        <Caret Line="95" Column="38" TopLine="74"/>
+      </Position17>
+      <Position18>
+        <Filename Value="editor.pas"/>
+        <Caret Line="91" Column="37" TopLine="80"/>
+      </Position18>
+      <Position19>
+        <Filename Value="editor.pas"/>
+        <Caret Line="111" Column="37" TopLine="94"/>
+      </Position19>
+      <Position20>
+        <Filename Value="editor.pas"/>
+        <Caret Line="89" Column="42" TopLine="86"/>
+      </Position20>
+      <Position21>
+        <Filename Value="editor.pas"/>
+        <Caret Line="109" Column="38" TopLine="104"/>
+      </Position21>
+      <Position22>
+        <Filename Value="editor.pas"/>
+        <Caret Line="135" Column="38" TopLine="118"/>
+      </Position22>
+      <Position23>
+        <Filename Value="editor.pas"/>
+        <Caret Line="95" Column="39" TopLine="92"/>
+      </Position23>
+      <Position24>
+        <Filename Value="editor.pas"/>
+        <Caret Line="103" Column="32" TopLine="100"/>
+      </Position24>
+      <Position25>
+        <Filename Value="editor.pas"/>
+        <Caret Line="159" Column="37" TopLine="142"/>
+      </Position25>
+      <Position26>
+        <Filename Value="editor.pas"/>
+        <Caret Line="113" Column="36" TopLine="110"/>
+      </Position26>
+      <Position27>
+        <Filename Value="editor.pas"/>
+        <Caret Line="175" Column="36" TopLine="158"/>
+      </Position27>
+      <Position28>
+        <Filename Value="editor.pas"/>
+        <Caret Line="111" Column="37" TopLine="108"/>
+      </Position28>
+      <Position29>
+        <Filename Value="editor.pas"/>
+        <Caret Line="138" Column="37" TopLine="135"/>
+      </Position29>
+      <Position30>
+        <Filename Value="editor.pas"/>
+        <Caret Line="95" Column="88" TopLine="77"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

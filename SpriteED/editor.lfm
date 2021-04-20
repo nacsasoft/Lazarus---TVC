@@ -1,0 +1,187 @@
+object frmEditor: TfrmEditor
+  Left = 352
+  Height = 544
+  Top = 179
+  Width = 589
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'TVC - Sprite Editor - Szerkesztő...'
+  ClientHeight = 544
+  ClientWidth = 589
+  DesignTimePPI = 92
+  OnActivate = FormActivate
+  OnClose = FormClose
+  Position = poScreenCenter
+  ShowInTaskBar = stAlways
+  LCLVersion = '1.8.2.0'
+  object GroupBox1: TGroupBox
+    Left = 408
+    Height = 170
+    Top = 24
+    Width = 168
+    Caption = 'Színek'
+    ClientHeight = 152
+    ClientWidth = 166
+    TabOrder = 0
+    object shpSKek: TShape
+      Left = 48
+      Height = 32
+      Top = 8
+      Width = 32
+      Brush.Color = 9502720
+      Pen.Style = psDash
+      OnMouseUp = shpSKekMouseUp
+    end
+    object shpSVoros: TShape
+      Left = 80
+      Height = 32
+      Top = 8
+      Width = 32
+      Brush.Color = 145
+      Pen.Style = psDash
+      OnMouseUp = shpSVorosMouseUp
+    end
+    object shpSLila: TShape
+      Left = 112
+      Height = 32
+      Top = 8
+      Width = 32
+      Brush.Color = 9502865
+      Pen.Style = psDash
+      OnMouseUp = shpSLilaMouseUp
+    end
+    object shpSZold: TShape
+      Left = 16
+      Height = 32
+      Top = 40
+      Width = 32
+      Brush.Color = 37120
+      Pen.Style = psDash
+      OnMouseUp = shpSZoldMouseUp
+    end
+    object shpSKekeszold: TShape
+      Left = 48
+      Height = 32
+      Top = 40
+      Width = 32
+      Brush.Color = 9539840
+      Pen.Style = psDash
+      OnMouseUp = shpSKekeszoldMouseUp
+    end
+    object shpSSarga: TShape
+      Left = 80
+      Height = 32
+      Top = 40
+      Width = 32
+      Brush.Color = 37265
+      Pen.Style = psDash
+      OnMouseUp = shpSSargaMouseUp
+    end
+    object shpSzurke: TShape
+      Left = 112
+      Height = 32
+      Top = 40
+      Width = 32
+      Brush.Color = 9539985
+      Pen.Style = psDash
+      OnMouseUp = shpSzurkeMouseUp
+    end
+    object shpFekete2: TShape
+      Left = 16
+      Height = 32
+      Top = 72
+      Width = 32
+      Brush.Color = clBlack
+      Pen.Style = psDash
+      OnMouseUp = shpFekete2MouseUp
+    end
+    object shpKek: TShape
+      Left = 48
+      Height = 32
+      Top = 72
+      Width = 32
+      Brush.Color = clBlue
+      Pen.Style = psDash
+      OnMouseUp = shpKekMouseUp
+    end
+    object shpVoros: TShape
+      Left = 80
+      Height = 32
+      Top = 72
+      Width = 32
+      Brush.Color = clRed
+      Pen.Style = psDash
+      OnMouseUp = shpVorosMouseUp
+    end
+    object shpLila: TShape
+      Left = 112
+      Height = 32
+      Top = 72
+      Width = 32
+      Brush.Color = clFuchsia
+      Pen.Style = psDash
+      OnMouseUp = shpLilaMouseUp
+    end
+    object shpZold: TShape
+      Left = 16
+      Height = 32
+      Top = 104
+      Width = 32
+      Brush.Color = clLime
+      Pen.Style = psDash
+      OnMouseUp = shpZoldMouseUp
+    end
+    object shpKekeszold: TShape
+      Left = 48
+      Height = 32
+      Top = 104
+      Width = 32
+      Brush.Color = clAqua
+      Pen.Style = psDash
+      OnMouseUp = shpKekeszoldMouseUp
+    end
+    object shpSarga: TShape
+      Left = 80
+      Height = 32
+      Top = 104
+      Width = 32
+      Brush.Color = clYellow
+      Pen.Style = psDash
+      OnMouseUp = shpSargaMouseUp
+    end
+    object shpFeher: TShape
+      Left = 112
+      Height = 32
+      Top = 104
+      Width = 32
+      Pen.Style = psDash
+      OnMouseUp = shpFeherMouseUp
+    end
+    object shpFekete1: TShape
+      Left = 16
+      Height = 32
+      Top = 8
+      Width = 32
+      Brush.Color = clBlack
+      Pen.Style = psDash
+      OnMouseUp = shpFekete1MouseUp
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 406
+    Height = 137
+    Top = 215
+    Width = 170
+    Caption = 'Aktív szín'
+    ClientHeight = 119
+    ClientWidth = 168
+    TabOrder = 1
+    object shpAktivSzin: TShape
+      Left = 17
+      Height = 83
+      Top = 16
+      Width = 130
+      Brush.Color = clBlack
+    end
+  end
+end

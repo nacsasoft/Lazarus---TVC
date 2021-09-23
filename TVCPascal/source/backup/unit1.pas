@@ -4625,7 +4625,7 @@ begin
                Match(_SetMode);
                Match(_lparen);
                if (Current_Number < 0) or (Current_Number > 3) then
-               		Abort('Unknown variable  (0 - 3 - OK)');
+               		Abort('SetMode : Unknown variable  (0 - 3 - OK)');
                Expression;
                GenCode('_SetMode',0,'','','','');
                Match(_rparen);
@@ -4635,22 +4635,22 @@ begin
                Match(_Plot);
                Match(_lparen);
                if (Current_Number < 0) or (Current_Number > 1023) then
-               		Abort('Unknown variable  (0 - 1023 - OK)');
+               		Abort('Plot : Unknown variable  (0 - 1023 - OK)');
                Expression;
                GenCode('_StoreWord',0,'LINEPOS_X1','','','');
                Match(_comma);
                if (Current_Number < 0) or (Current_Number > 959) then
-               		Abort('Unknown variable  (0 - 959 - OK)');
+               		Abort('Plot : Unknown variable  (0 - 959 - OK)');
 			   Expression;
                GenCode('_StoreWord',0,'LINEPOS_Y1','','','');
                Match(_comma);
                if (Current_Number < 0) or (Current_Number > 1023) then
-               		Abort('Unknown variable  (0 - 1023 - OK)');
+               		Abort('Plot : Unknown variable  (0 - 1023 - OK)');
 			   Expression;
                GenCode('_StoreWord',0,'LINEPOS_X2','','','');
                Match(_comma);
                if (Current_Number < 0) or (Current_Number > 959) then
-               		Abort('Unknown variable  (0 - 959 - OK)');
+               		Abort('Plot : Unknown variable  (0 - 959 - OK)');
 			   Expression;
                GenCode('_StoreWord',0,'LINEPOS_Y2','','','');
                GenCode('_Call',0,'plot','','','');
@@ -4664,25 +4664,25 @@ begin
                Match(_lparen);
 			   //Bal felső koordináta :
                x1 := Current_Number;
-               if (x1 < 0) or (x1 > 1023) then Abort('Unknown variable  (0 - 1023 - OK)');
+               if (x1 < 0) or (x1 > 1023) then Abort('PlotRect : Unknown variable  (0 - 1023 - OK)');
                Expression;
                GenCode('_StoreWord',0,'LINEPOS_X1','','','');
                Match(_comma);
                y1 := Current_Number;
-               if (y1 < 0) or (y1 > 959) then Abort('Unknown variable  (0 - 959 - OK)');
+               if (y1 < 0) or (y1 > 959) then Abort('PlotRect : Unknown variable  (0 - 959 - OK)');
 			   Expression;
                GenCode('_StoreWord',0,'LINEPOS_Y1','','','');
                Match(_comma);
 			   //szélesség :
                szel := Current_Number;
-			   if (x1 + szel > 1023 ) then Abort('Unknown variable (X + Width > 1023)');
+			   if (x1 + szel > 1023 ) then Abort('PlotRect : Unknown variable (X + Width > 1023)');
                Current_Number:=x1+szel;
 			   Expression;
                GenCode('_StoreWord',x1 + szel,'LINEPOS_X2','','','');
                Match(_comma);
                //magasság:
                mag := Current_Number;
-			   if (y1 - mag < 0) then Abort('Unknown variable (Y - Height < 0)');
+			   if (y1 - mag < 0) then Abort('PlotRect : Unknown variable (Y - Height < 0)');
                Current_Number:=y1-mag;
 			   Expression;
                GenCode('_StoreWord',y1 - mag,'LINEPOS_Y2','','','');
@@ -4695,15 +4695,15 @@ begin
      _fill : begin				//Terület kifestése adott pontból kiindulva adott színnel
                Match(_Fill);
                Match(_lparen);
-               if (Current_Number < 0) or (Current_Number > 1023) then Abort('Unknown variable  (0 - 1023 - OK)');
+               if (Current_Number < 0) or (Current_Number > 1023) then Abort('Fill : Unknown variable  (0 - 1023 - OK)');
                Expression;
                GenCode('_StoreWord',0,'LINEPOS_X1','','','');
                Match(_comma);
-               if (Current_Number < 0) or (Current_Number > 959) then Abort('Unknown variable  (0 - 959 - OK)');
+               if (Current_Number < 0) or (Current_Number > 959) then Abort('Fill : Unknown variable  (0 - 959 - OK)');
 			   Expression;
                GenCode('_StoreWord',0,'LINEPOS_Y1','','','');
                Match(_comma);
-               if (Current_Number < 0) or (Current_Number > 15) then Abort('Unknown variable  (0 - 15 - OK)');
+               if (Current_Number < 0) or (Current_Number > 15) then Abort('Fill : Unknown variable  (0 - 15 - OK)');
                Expression;
                GenCode('_StoreWord',0,'LINEPOS_X2','','','');	//x2 most a színt fogja tartalmazni
                GenCode('_Call',0,'fill','','','');
@@ -4738,7 +4738,7 @@ begin
               	Match(_comma);
                 sx := GetName;
                	if LookSymbol(sx)<>_String then
-                  	Abort('Uncompatible type (string[n] - OK)');	//ha nem Byte tömb akkor hiba
+                  	Abort('InputAtString : Uncompatible type (string[n] - OK)');	//ha nem Byte tömb akkor hiba
 			   	GenCode('_LoadLabel',0,sx,'','','');
                 GenCode('_Call',0,'inputatstring','','','');
                 Match(_rparen);
@@ -4757,7 +4757,7 @@ begin
               	Match(_comma);
                 sx := GetName;
                	if LookSymbol(sx) <> _Word then
-                  	Abort('Uncompatible type (WORD - OK)');	//ha nem Word típus akkor hiba
+                  	Abort('InputAtNumber : Uncompatible type (WORD - OK)');	//ha nem Word típus akkor hiba
 			   	GenCode('_LoadLabel',0,sx,'','','');
                 GenCode('_Call',0,'inputatnumber','','','');
                 Match(_rparen);
@@ -4784,7 +4784,7 @@ begin
      _SoundVolume : begin	//Hangerő beállítása (n – byte, 0-15)
                Match(_SoundVolume);
                Match(_lparen);
-               if Current_Number > 15 then Abort('Unknown variable  (0-15 - OK)');
+               if Current_Number > 15 then Abort('SoundVolume : Unknown variable  (0-15 - OK)');
                Expression;
                GenCode('_StoreByte',0,'SOUND_VOLUME','','','');
                GenCode('_Call',0,'sound_volume','','','');
@@ -4808,7 +4808,7 @@ begin
      _SoundPlay : begin	//Hang lejátszás indítása (PITCH, DURATION)
                Match(_SoundPlay);
                Match(_lparen);
-               if Current_Number > 4095 then Abort('Unknown variable  (0-4095 - OK)');
+               if Current_Number > 4095 then Abort('SoundPlay : Unknown variable  (0-4095 - OK)');
                Expression;
                GenCode('_StoreWord',0,'SOUND_PITCH','','','');
                Match(_comma);
@@ -5193,10 +5193,14 @@ if ParamCount>0
   CloseFile(Source);
   CloseFile(Dest);
   CloseFile(fError);
+
   //CloseFile(fCommand);
 
-  //ShowMessage('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
-  WriteLn('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  {$IfDef WINDOWS}
+    ShowMessage('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  {$Else}
+    WriteLn('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  {$EndIf}
 
   Application.Terminate;
 

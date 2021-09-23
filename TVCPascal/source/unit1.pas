@@ -5193,10 +5193,15 @@ if ParamCount>0
   CloseFile(Source);
   CloseFile(Dest);
   CloseFile(fError);
+
   //CloseFile(fCommand);
 
-  //ShowMessage('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
-  WriteLn('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  //windows alatt a writeln halott!!!....
+  {$IfDef WINDOWS}
+    ShowMessage('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  {$Else}
+    WriteLn('File compiled successfully in '+Leftstr(Name, length(Name)-4)+'.asm !');
+  {$EndIf}
 
   Application.Terminate;
 

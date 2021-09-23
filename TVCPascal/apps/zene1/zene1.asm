@@ -121,8 +121,8 @@ L2
 L1
       call  sound_stop
       ret    ; Kilepes a programbol
-
-
+
+
 ; ***** Library Code ***** 
 
 ; sound eljarasok:
@@ -232,9 +232,9 @@ PORT_6_MEM_MIRROR 	EQU 	2835 		; a 6-os port tukorkepe a memoriaban
 LOGICAL_A		defb	0
 LOGICAL_B		defb	0
 
-
+
 ; ***** Library Ends *****
-
+
 ; Variable Area
 _MUSIC
 	defw	3349
@@ -314,5 +314,5 @@ _BKOTTAID	defb	1
 _I	defb	0
 _BBILLKOD	defb	0
 _BSOUNDPLAYING	defb	0
-
+
 ; String constants

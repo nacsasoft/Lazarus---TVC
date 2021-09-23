@@ -10,6 +10,7 @@ object Form1: TForm1
   ClientHeight = 100
   ClientWidth = 225
   Color = clBtnFace
+  DesignTimePPI = 120
   Font.Color = clWindowText
   Font.Height = -10
   Font.Name = 'MS Sans Serif'
@@ -18,12 +19,12 @@ object Form1: TForm1
   OnCreate = FormCreate
   Position = poScreenCenter
   ShowInTaskBar = stNever
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '1.8.4.0'
   object Label2: TLabel
     Left = 200
-    Height = 11
+    Height = 13
     Top = 216
-    Width = 85
+    Width = 80
     Caption = 'Compile address:'
     ParentColor = False
     Visible = False
@@ -32,7 +33,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 16
-    Width = 121
+    Width = 113
     Caption = 'Text with attributes'
     TabOrder = 0
     Visible = False
@@ -41,7 +42,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 40
-    Width = 145
+    Width = 136
     Caption = 'Windows with attributes'
     TabOrder = 1
     Visible = False
@@ -50,7 +51,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 64
-    Width = 135
+    Width = 124
     Caption = 'Sprites with attributes'
     TabOrder = 2
     Visible = False
@@ -59,7 +60,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 88
-    Width = 158
+    Width = 146
     Caption = 'Map sprites with attributes'
     TabOrder = 3
     Visible = False
@@ -68,7 +69,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 112
-    Width = 149
+    Width = 144
     Caption = 'Edge checking for sprites'
     TabOrder = 4
     Visible = False
@@ -77,7 +78,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 136
-    Width = 164
+    Width = 156
     Caption = 'Text output to virtual screen'
     TabOrder = 5
     Visible = False
@@ -86,7 +87,7 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 160
-    Width = 173
+    Width = 162
     Caption = 'Sprite output to virtual screen'
     TabOrder = 6
     Visible = False
@@ -95,14 +96,14 @@ object Form1: TForm1
     Left = 248
     Height = 23
     Top = 184
-    Width = 165
+    Width = 156
     Caption = 'Map output to virtual screen'
     TabOrder = 7
     Visible = False
   end
   object Edit1: TEdit
     Left = 288
-    Height = 24
+    Height = 21
     Top = 216
     Width = 41
     TabOrder = 8
@@ -115,8 +116,8 @@ object Form1: TForm1
     Top = 8
     Width = 208
     Caption = 'Pascal forrás fordítása...'
-    ClientHeight = 67
-    ClientWidth = 206
+    ClientHeight = 63
+    ClientWidth = 204
     TabOrder = 9
     object btnPascalToASM: TButton
       Left = 24

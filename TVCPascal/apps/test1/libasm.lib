@@ -1,0 +1,1024 @@
+; ===== _all =====
+
+table_mirror_high	equ	251
+
+; ===== _set_cursor_it =====
+
+; Kurzor megszakitas atallitasa a sprite y koordinataja ala.
+; input:  lsd: _sprite_vars 
+
+set_cursor_it		LD A,(SPRITE_Y)		; A = SHIP_Y
+			ADD A,10 		; par sort meg hozzaadunk
+			LD L,A 			; L = SHIP_Y + par sor
+			AND 3 			; 1-2. bit kivetelevel mindet toroljuk
+			LD E,A 			; E regiszterbe elmentjuk
+			LD A,L 			; A = (SPRITE_Y+par sor)
+			SUB E 			; A = (SPRITE_Y+par sor)-((SPRITE_Y + par sor) mod 4)
+			LD L,A 			; L = (SPRITE_Y+par sor)-((SPRITE_Y + par sor) mod 4)
+			LD H,0 			; H = 0
+			ADD HL,HL 		; HL = HL * 2
+			ADD HL,HL 		; HL = HL * 4
+			ADD HL,HL 		; HL = HL * 8
+			ADD HL,HL 		; HL = HL * 16 -> HL=16 * HL
+			INC HL 			; 1-el noveljuk a HL-t
+			; cursor-megszakitas poziciojanak beallitasa
+			DI 			; letiltjuk a megszakitasokat
+			LD A,14
+			OUT ($70),A 	; cursor-megszak.poz.felso byte reg.
+			LD A,H
+			OUT ($71),A 	; kiszamolt felso byte kikuldese
+			LD A,15 
+			OUT ($70),A 	; cursor-megszak.poz.also byte reg.
+			LD A,L
+			OUT ($70),A 	; kiszamolt also byte kikuldese
+			; karaktersorban a kezdo- es befejezo TV sor beallitasa
+			LD A,10
+			OUT ($70),A 	; kezdo TV sort beallito regiszterenek kivalasztasa
+			LD A,E 			; A = ((SPRITE_Y+SPRITE_HEIGHT) / 4) muvelet maradeka
+			OUT ($71),A 	; kikuldjuk a portra
+			LD A,11
+			OUT ($70),A 	; befejezo TV sort beallito reg. kivalasztasa
+			LD A,E 			; A = ((SPRITE_Y+SPRITE_HEIGHT) / 4) muvelet maradeka
+			OUT ($71),A 	; ide is kikuldjuk ugyanazt
+			EI 			; engedelyezzuk a megszakitasokat
+			RET
+
+; ===== _putsprite =====
+
+; Sprite kirakasa felulirassal
+; input:  lsd: _sprite_vars 
+
+putsprite		call	set_cursor_it
+			ld	hl,VRAM_START
+			ld	a,(SPRITE_Y)
+			cp	0
+			jp	z,put_spr_Y_zero	; ha Y=0 akkor marad az alap VRAM kezdocim
+			ld	bc,64
+put_spr_sor_iter	add	hl,bc	
+			dec	a
+			jp	NZ,put_spr_sor_iter	; VRAM kezdocimhez hozzaadjuk a sor*64 -et
+put_spr_Y_zero		ld	d,0
+			ld	a,(SPRITE_X)
+			ld	e,a
+			add	hl,de			; x-pozicio is hozzaadva (megvan a sprite helye a vramban)
+			ex	de,hl
+			ld	hl,(SPRITE_DATA_ADDRESS)	; HL = a sprite-unk memoriacime
+			ld	a,(hl)
+			ld	(SPRITE_WIDTH),a
+			inc	hl			; lepes a kovetkezo byte-ra 
+			ld 	b,(hl) 			; b = a sprite magassaga pixelsorokban 
+			ld 	ixl,b 			; ixl = b -> azaz a sprite magassaga 
+			inc 	hl			; lepes a kovetkezo byte-ra 
+			ld	a,(SPRITE_DRAW_MODE)	; kirajzolas modja?
+			cp	1			; XOR ??
+			jp	z,put_spr_draw_xor	; igen, maskepp kell kirajzolni!! Ugras...
+put_spr_y_iter		ld 	bc,64 			; bc = 64 -> ennyi byte szeles a kepernyo 
+			ld 	a,(SPRITE_WIDTH)	; a = a sprite szelessege byte-okban 
+put_spr_x_iter		ldi 				; egy byte sprite kirakasa 
+			dec 	a			; a = a - 1 
+			jp 	nz,put_spr_x_iter	; ha a nem nulla, akkor folytatjuk 
+			ex 	de,hl 			; de <=> hl csere 
+			add 	hl,bc 			; hl = hl + bc 
+			ex 	de,hl 			; de <=> hl csere vissza 
+			dec 	ixl 			; ixl = ixl - 1 -> ennyi sort kell meg kirakni 
+			jp 	nz,put_spr_y_iter	; ha ixl nem nulla, akkor meg vannak sorok			
+			ret
+
+; kirajzolas XOR-muvelettel...
+; hl  = a sprite-unk memoriacime
+; de  = kirajzolas pozicioja a vramban
+; ixl = sprite magassaga
+ 	
+put_spr_draw_xor	ld 	a,(SPRITE_WIDTH)	; a = sprite szelessege byte-okban
+			ld	iyl,a			; elmentjuk kesobbre
+			ld	a,64			; mivel itt mashogy leptetjuk a sorokat
+			sub	iyl			; ezert b-be nem 64-et kell rakni hanem
+			ld 	b,0 			; 64-SPRITE_WIDTH -t!!
+			ld	c,a
+put_spr_xor_x_iter	ld	a,(de)			; a-ba kerul a vram tartalma
+			xor	(hl)			; xor muvelet elvegzese a sprite es a vram byte-ok kozott
+			ld	(de),a			; xor eredmenye kiirasra kerul a vramba
+			inc	hl
+			inc	de
+			dec	iyl
+			jp	nz,put_spr_xor_x_iter
+			ex 	de,hl 			; de <=> hl csere 
+			add 	hl,bc 			; hl = hl + bc   (64-egy sor) 
+			ex 	de,hl 			; de <=> hl csere vissza 
+			dec 	ixl 			; ixl = ixl - 1 -> ennyi sort kell meg kirakni 
+			jp 	nz,put_spr_draw_xor	; ha ixl nem nulla, akkor meg vannak sorok
+			ret
+			
+			
+
+
+; ===== _sound =====
+
+; sound eljarasok:
+; uj hang lejatszasanak elinditasa
+; output: nincs
+; input: SOUND_PITCH es SOUND_DURATION
+
+sound_play	ld	hl,SOUND_PITCH			; hl = PITCH ertek
+		ld	a,(hl) 				; A = PITCH also byte a kottabol 
+		ld 	e,a 				; elrakjuk E regiszterbe 
+		inc	hl
+		ld 	a,(hl) 				; A = PITCH felso byte a kottabol 
+		ld	d,a				; DE = PITCH 
+		
+		; hang kiadasa  
+		ld	a,e 				; A = PITCH also 8 bitje
+		out	(SOUND_PORT_LO),a 		; kikuldjuk a 4-es portra
+		ld	a,(PORT_5_MEM_MIRROR) 		; A = 5-os port tukre
+		and	128+64+32			; kinullazzuk az also 4 bitet
+		or	16 				; Hangjel bit 1-esre allitasa
+		or	d				; majd hozzaadjuk a PITCH felso 4 bitjet
+		ld	(PORT_5_MEM_MIRROR),a 		; visszairjuk a rendszervaltozoba
+		out	(SOUND_PORT_HI),a		; es kikuldjuk az 5-os portra
+		ret					 
+
+
+; hang lejatszas figyelese
+;output: hl=1 ha a hang szol; hl=0 le lehet jatszani a kovetkezo hangot
+
+sound_playing	;halt					; EGY SIMA DELAY(1) -EL KELL BEALLITANI A PROGIBAN!!!!!
+		ld	hl,1				; hl=1 hanglejatszas folyamatban van!
+		ld	de,(SOUND_DURATION)
+		ld 	a,e				; A = hang kitartasbol hatralevo ido 
+		or	a 				; a = 0?
+		jp	nz,s_p_dur_dec			; meg nem nulla, ugras hangkitartasra 
+		
+		; hang lejatszassal vegeztunk
+		dec	hl				; hl=0 (ha van kovetkezo akkor most johet)
+		ret
+				
+		; hangkitartas idozitese 
+s_p_dur_dec 	dec	a 				; SOUND_DURATION = SOUND_DURATION - 1 
+		ld	d,0
+		ld	e,a
+		ld	(SOUND_DURATION),de		; elmentjuk a valtozoba (WORD!!!)
+		ret		 
+
+; hangero beallitasa
+
+sound_volume		ld	a,(SOUND_VOLUME)
+			sla	a
+			sla	a
+			ld	l,a
+			ld	a,(PORT_6_MEM_MIRROR)
+			and 	128+64+2+1
+			or	l
+			ld	(PORT_6_MEM_MIRROR),a
+			out	(VOLUME_PORT),a
+			ret
+
+; hang kikapcsolasa
+
+sound_stop		ld	a,(PORT_5_MEM_MIRROR) 		; A = 5-os port tukre 
+			and 	128+64 				; toroljuk a "HANGJEL" bitet 
+			ld	(PORT_5_MEM_MIRROR),a 		; visszairjuk a rendszervaltozoba 
+			out	(SOUND_PORT_HI),a 		; majd kikuldjuk a portra
+			xor	a
+			ld	(SOUND_DURATION),a		; nullazni kell mert a SoundPlaying ezt nezi
+			ret
+
+; ===== _andbyte =====
+
+; AND logikai vizsgalat LOGICAL_A es LOGICAL_B kozott, eredmeny = hl
+; input: LOGICAL_A es LOGICAL_B byte tipusu valtozok
+; output: hl a vizsgalat eredmenye
+
+andbyte			ld	hl,(LOGICAL_A)
+                        ld	a,l
+                        and	h
+                        ld	h,0
+                        ld	l,a
+                        ret 
+
+; ===== _orbyte =====
+
+; OR logikai vizsgalat LOGICAL_A es LOGICAL_B kozott, eredmeny = hl
+; input: LOGICAL_A es LOGICAL_B byte tipusu valtozok
+; output: hl a vizsgalat eredmenye
+
+orbyte			ld	hl,(LOGICAL_A)
+                        ld	a,l
+                        or	h
+                        ld	h,0
+                        ld	l,a
+                        ret 
+
+; ===== _xorbyte =====
+
+; XOR logikai vizsgalat LOGICAL_A es LOGICAL_B kozott, eredmeny = hl
+; input: LOGICAL_A es LOGICAL_B byte tipusu valtozok
+; output: hl a vizsgalat eredmenye
+
+xorbyte			ld	hl,(LOGICAL_A)
+                        ld	a,l
+                        xor	h
+                        ld	h,0
+                        ld	l,a
+                        ret 
+
+; ===== _inputatnumber =====
+
+; Word tipus beolvasasa az adott (x,y) poziciotol a string_number-temp-be amit majd at kell alakitani 16bites szamma
+; input: x,y -pozicio ; hl = ide kerul majd a 16bites szam
+
+inputatnumber		push	hl			; ide kell visszadni a szamot
+			ld	hl,string_number + 1	; itt lesz majd a bekert szam (azert +1 mert az elso byte a hosszt jelenti)
+			push 	hl
+			ld	bc,4		; ldir beallitasa		
+			ld	(hl),32		; string feltoltese space-ekkel
+			ld	de,string_number + 2	; ide kerul majd a hl-bol az adat (32)
+			ldir			; string torles end (hl->de es bc=bc-1)
+			ld	a,(PRINTAT_X)
+			ld	b,a
+			ld	a,(PRINTAT_Y)
+			ld	c,a
+			rst	$30		; kurzor pozicionalas
+			db	$23
+			pop	hl
+			ld	de,0			
+			push	de						
+			rst	$30
+			db	$24		; kurzor pozicio megjegyzese (itt kell kiadni mert kulonben nem ok!)
+	inputatnr_1	rst	$30		; karakter beolvaso hurok inditasa
+			db	$a1		; karakterek beolvasasa, return-re kilep a szerkesztobol es visszaadja az elso karaktert
+			ld	a,13		; majd ujboli hivasra c-ben visszaadja a beolvasott karaktereket, ha return (13)-at
+			pop	de
+			cp	c		; kapunk vissza akkor vege a bevitelnek mehet az atalakitas STR->16bit
+			jr	z,inputatnr_2
+			ld	a,6
+			inc	e		; karakter max csokkentese
+			cp	e
+			jr	z,inputatnr_2	; ha tobb mint 5 karakter akkor vege a bevitelnek mehet az atalakitas STR->16bit
+			push	de				 
+			ld	(hl),c		; van meg karakter es kell is masolni
+			inc	hl		; kovetkezo hely
+			jr	inputatnr_1	; johet a kovetkezo karakter
+	inputatnr_2	ld	hl,string_number
+			ld	(hl),e			; a szam hossza (karakterben) a konvertalas miatt
+			call	convert_string_to_16bit
+			ld	de,(number_temp)
+			pop	hl			; ide kell atadni a szamot
+			ld	(hl),e
+			inc	hl
+			ld	(hl),d
+			ret
+
+; ===== _inputatstring =====
+
+; Szoveg beolvasasa az adott (x,y) poziciotol az arrInputString -tombbe amit elozoleg deklaralni kell.
+; input: x,y -pozicio ; hl = ide megy a beolvasott szoveg
+
+inputatstring			push	hl		; ide kell eltarolni a beirt karaktereket
+			ld	b,0		; string torles start
+			ld	c,(hl)
+			dec	c
+			inc	hl
+			ld	(hl),32		; string feltoltese space-ekkel
+			push	hl
+			ex	de,hl
+			inc	de
+			pop	hl
+			ldir			; string torles end
+			ld	a,(PRINTAT_X)
+			ld	b,a
+			ld	a,(PRINTAT_Y)
+			ld	c,a
+			rst	$30		; kurzor pozicionalas
+			db	$23
+	
+			pop	hl
+			ld	d,0
+			ld	e,(hl)		; ennyi karaktert kell max. beolvasni
+			inc	e
+			push	de
+			inc	hl		; es ide kell elrakni
+						
+			rst	$30
+			db	$24		; kurzor pozicio megjegyzese (itt kell kiadni mert kulonben nem ok!)
+	inputatst_1	rst	$30		; karakter beolvaso hurok inditasa
+			db	$a1		; karakterek beolvasasa, return-re kilep a szerkesztobol es visszaadja az elso karaktert
+			ld	a,13		; majd ujboli hivasra c-ben visszaadja a beolvasott karaktereket, ha return (13)-at
+			pop	de
+			cp	c		; kapunk vissza akkor kilepes
+			ret	z
+			ld	a,0
+			dec	e		; karakter max csokkentese
+			cp	e
+			ret	z		; ha tobb mint a max beolvashato (array merete!!) akkor kilepes, vegeztunk
+			push	de		 
+			ld	(hl),c		; van meg karakter es kell is masolni
+			inc	hl		; kovetkezo hely
+			jr	inputatst_1	; johet a kovetkezo karakter
+			ret
+
+
+; ===== _inkey =====
+
+; Billentyuzet allapot leolvasasa, ha nyomtak le vmit akkor visszaadja a kodjat.
+
+inkey			ld	hl,0
+			rst	$30
+			db	$93
+			ld	a,c			; c=255 ha van karakter amit be lehet olvasni
+			cp	0
+			ret	z			; nincs beolvashato karakter, kilepes
+			rst	$30			
+			db	$91			; lenyomott billentyu leolvasasa
+			ld	l,c
+			ld	h,0
+			ret
+			
+			
+
+; ===== _get =====
+
+; Varakozas amig le nem nyomunk egy gombot majd visszaadja a lenyomott billentyu kodjat.
+
+get			rst	$30
+			db	$91
+			ld	l,c
+			ld	h,0
+			ret
+
+
+; ===== _fill =====
+
+; Terulet kifestese adott pontbol kiindulva adott szinnel 
+; input: x1,y1 : innet indul a festes ; n : festes szine
+
+fill			ld	a,(2893)		; aktualis tintaszin elmentese
+			ld	l,a
+			ld	a,(LINEPOS_X2)		; uj szin lekerese
+			ld	(2893),a		; es beallitasa
+			rst	$30
+			db	$9			; toll kikapcsolasa
+			ld	bc,(LINEPOS_X1)		; kezdopoziciok
+			ld	de,(LINEPOS_Y1)
+			rst	$30
+			db	$6			; toll pozicioba
+			rst	$30
+			db	$0a			; festes
+			ld	a,l			; eredeti tintaszin visszatoltese
+			ld	(2893),a		; es visszaallitasa
+			ret
+
+
+; ===== _plotrect =====
+
+; Teglalap rajzolasa
+; input: x1,y1 : bal felso sarok ; x2,y2 : jobb also sarok (pascalbol szamolt a szelesseg es magassag alapjan)
+
+plotrect		rst	$30
+			db	$9			; toll kikapcsolasa
+			ld	bc,(LINEPOS_X1)		; kezdopoziciok
+			ld	de,(LINEPOS_Y1)
+			rst	$30
+			db	$6			; toll pozicioba
+			rst	$30
+			db	$8			; toll bekapcsolas
+			ld	bc,(LINEPOS_X2)
+			ld	de,(LINEPOS_Y1)
+			rst	$30
+			db	$6
+			ld	bc,(LINEPOS_X2)
+			ld	de,(LINEPOS_Y2)
+			rst	$30
+			db	$6
+			ld	bc,(LINEPOS_X1)
+			ld	de,(LINEPOS_Y2)
+			rst	$30
+			db	$6
+			ld	bc,(LINEPOS_X1)
+			ld	de,(LINEPOS_Y1)
+			rst	$30
+			db	$6
+			rst	$30
+			db	$9			; toll kikapcsolasa
+			ret
+			
+
+; ===== _plot =====
+
+; Vonal rajzolasa
+; input: x1,y1 : kezdopont ; x2,y2 : vegpont
+
+plot			rst	$30
+			db	$9			; toll kikapcsolasa
+			ld	bc,(LINEPOS_X1)		; kezdopoziciok
+			ld	de,(LINEPOS_Y1)
+			rst	$30
+			db	$6			; toll pozicioba
+			rst	$30
+			db	$8			; toll bekapcsolas
+			ld	bc,(LINEPOS_X2)		; vegpoziciok
+			ld	de,(LINEPOS_Y2)
+			rst	$30			
+			db	$6			; toll mozgatasa
+			rst	$30
+			db	$9			; toll kikapcsolasa
+			ret
+			
+
+
+; ===== _setchar =====
+
+; Egyedi karakter definialasa (lsd. doksi)
+
+setchar			ld	a,(CHAR_NR)
+			ld	b,0
+			ld	c,a			
+			sub	128		; 128-tol kezdodnek a definialhato karakterek
+			cp	96		; 0-95 lehet a karakter azonosito
+			ret	nc		; ha ennel nagyobb akkor kilepes (223-nal nem lehet nagyobb)
+			ex	de,hl		; de = karakter adatok kezdocime
+			rst	$30
+			db	$0B		; karakter definialasa
+			ret
+			
+; ===== _printchar =====
+
+; Ujradefinialt karakter kiirasa kurzor pozicioba
+
+; input: PRINTAT_X : (1-64, 32, 16), PRINTAT_Y : (1-24), hl = karakter ASCII kodja (128-223)
+; output: nincs
+
+printchar		ld	a,(PRINTAT_X)
+			ld	b,a
+			ld	a,(PRINTAT_Y)
+			ld	c,a
+			rst	$30
+			db	$23
+			ld	a,(CHAR_NR)
+			ld	c,a
+			rst	$30
+			db	$21
+			ret
+			
+; ===== _printplotchar =====
+
+; Ujradefinialt karakter kiirasa kurzor pozicioba
+
+; input: printplot_x : (0-1023), printplot_y : (0-959), hl = karakter ASCII kodja (128-223)
+; output: nincs
+
+printplotchar		ld	bc,(PRINTPLOT_X)
+			ld	de,(PRINTPLOT_Y)
+			rst	$30
+			db	6
+			ld	a,(CHAR_NR)
+			ld	c,a
+			rst	$30
+			db	$1
+			ret
+
+
+; ===== _setpalette =====
+
+; Paletta beallitasa (2,4 uzemmodban) a palettavaltozokbol
+
+setpalette		ld	a,(PALETTE_00)
+			out	(96),a
+			ld	a,(PALETTE_01)
+			out	(97),a
+			ld	a,(PALETTE_02)
+			out	(98),a
+			ld	a,(PALETTE_03)
+			out	(99),a
+			ret
+
+; ===== _printat =====
+
+; Szoveg vagy string kiirasa az adott karakter pozicioba.
+; input: printat_x : (1-64, 32, 16), printat_y : (1-24), hl = string (hossz,karakterek)
+; output: nincs
+
+printat			ld	a,(PRINTAT_X)
+			ld	b,a
+			ld	a,(PRINTAT_Y)
+			ld	c,a
+			rst	$30
+			db	$23
+			ld	b,0
+			ld	c,(hl)
+			inc	hl			
+			ld	d,h
+			ld	e,l
+			rst	$30
+			db	$22
+			ret
+
+
+; ===== _printplot =====
+
+; Szoveg vagy string kiirasa az adott rajzolasi pozicioba.
+; input: printplot_x : (0-1023), printplot_y : (0-959), hl = string (hossz,karakterek)
+; output: nincs
+
+printplot		ld	bc,(PRINTPLOT_X)
+			ld	de,(PRINTPLOT_Y)
+			rst	$30
+			db	6
+			ld	b,0
+			ld	c,(hl)
+			inc	hl
+			ld	d,h
+			ld	e,l
+			rst	$30
+			db	2
+			ret
+
+
+; ===== _graphics =====
+
+; Grafikus mod beallitasa
+; input: l = felbontas (0=2-es, 1=4-es, 2=16-os)
+; output: nincs
+
+graphics		ld c,l
+			rst $30
+			db 4
+			ret
+
+
+
+; ===== _random_byte =====
+
+; Veletlenszam generalas...
+; input: no
+; output: l = veletlen szam (0-255)
+
+random_byte		ld 	a,r		; the R register is a counter that is updated during every Z80 M1 cycle
+						; (approximately equivalent to every instruction)
+			ld 	h,0
+			rlc	a
+			ld 	b,a
+			add	a,a
+			add	a,a
+			add	a,b
+			inc	a
+			ld 	h,0
+			ld	l,a
+			ret                     
+			
+; ===== _random_word =====
+
+; Veletlenszam generalas...
+; input: no
+; output: hl = veletlen szam (0-65535)
+
+random_word		ld 	a,r
+			rlc	a
+			ld	h,a
+			ld 	b,a
+			add	a,a
+			add	a,a
+			add	a,b
+			inc	a
+			ld	l,a
+			ret       
+			
+
+
+; ===== _convert_16bit_to_string =====
+
+; dupla bajt szam konvertalasa karakterlancca
+; input: hl = szam
+; output: (string_number) = string
+
+convert_16bit_to_string		ld	de,string_number+1
+
+				ld	bc,10000
+				call	convert_16bit_to_string_01
+
+				ld	bc,1000
+				call	convert_16bit_to_string_01
+
+				ld	bc,100
+				call	convert_16bit_to_string_01
+
+				ld	bc,10
+				call	convert_16bit_to_string_01
+
+				ld	bc,1
+				call	convert_16bit_to_string_01
+
+				ld	b,4
+
+convert_16bit_to_string_03	push	bc
+				ld	hl,string_number+2
+				ld	de,string_number+1
+				ld	a,(de)
+				cp	s__0
+				jp	nz,convert_16bit_to_string_04
+				ld	c,b
+				ld	b,0
+				ldir
+				pop	bc
+				djnz	convert_16bit_to_string_03
+
+				ld	a,1
+				ld	(string_number),a
+
+				ret
+
+convert_16bit_to_string_04	pop	bc
+
+				ld	a,b
+				inc	a
+				ld	(string_number),a
+
+				ret
+
+convert_16bit_to_string_01	ld	a,s__0
+				and	a
+convert_16bit_to_string_02	sbc	hl,bc
+				inc	a
+				jp	nc,convert_16bit_to_string_02
+				add	hl,bc
+				dec	a
+				ld	(de),a
+				inc	de
+				ret
+
+
+; ===== _convert_string_to_16bit =====
+
+; Karakterlancbol 16 bajtos szam forditas
+; input: hl = karakterlanc cime
+; output: (number_temp) = szam; CY = 1, ha konverzios hiba tortent
+
+convert_string_to_16bit		ld	de,0
+				ld	(number_temp),de
+
+				ld	a,(hl)
+				cp	6
+				jp	nc,convert_string_to_16bit_error
+				cp	5
+				jp	z,convert_string_to_16bit_15
+				cp	4
+				jp	z,convert_string_to_16bit_14
+				cp	3
+				jp	z,convert_string_to_16bit_13
+				cp	2
+				jp	z,convert_string_to_16bit_12
+				cp	1
+				jp	z,convert_string_to_16bit_11
+
+convert_string_to_16bit_error	scf
+				ret
+
+convert_string_to_16bit_error_01	pop	bc
+					scf
+					ret
+
+convert_string_to_16bit_15	ld	bc,10000
+				call	convert_string_to_16bit_20
+convert_string_to_16bit_14	ld	bc,1000
+				call	convert_string_to_16bit_20
+convert_string_to_16bit_13	ld	bc,100
+				call	convert_string_to_16bit_20
+convert_string_to_16bit_12	ld	bc,10
+				call	convert_string_to_16bit_20
+convert_string_to_16bit_11	ld	bc,1
+				call	convert_string_to_16bit_20
+
+				and	a
+				ret
+
+convert_string_to_16bit_20	inc	hl
+				ld	a,(hl)
+				cp	48
+				jp	c,convert_string_to_16bit_error_01
+				cp	58
+				jp	nc,convert_string_to_16bit_error_01
+
+				sub	48
+				ld	e,a
+				ld	d,0
+				push	hl
+				call	mul
+				ld	de,(number_temp)
+				add	hl,de
+				ld	(number_temp),hl
+				pop	hl
+				ret
+
+
+; ===== _delay =====
+
+; szunet 50 = 1 masodperces kesleltetes!
+; input: hl = masodperc 1/50 intervallumok szama
+; output: nem
+
+pause			halt
+			dec	hl
+			ld	a,h
+			or	l
+			jr	nz,pause
+			ret
+
+
+; ===== _mul_proc =====
+
+; 16 bites szorzas
+; dehl=de*bc
+
+mul		ld hl,0
+		ld a,16
+Mul_Loop_1:
+		add hl,hl
+		rl e
+		rl d
+		jr nc,$+6
+		add hl,bc
+		jr nc,$+3
+		inc de
+		dec a
+		jr nz,Mul_Loop_1
+	ret
+
+
+; ===== _div_proc =====
+
+; 16 bites osztas
+; (C) Aleksey Malov aka Vivid
+;     little optimized by Vitaly Vidmirov
+; hl = de/bc  de = de%bc  ~840 takts.
+; hl = 65535, de = de(dividend) if bc(divisor) == 0.
+div	ld hl,65535
+	ld a,b
+	or c
+	ret z
+
+
+       xor a
+       sub c
+       ld c, a
+       sbc a, b
+       sub c
+       ld b, a
+       ld hl,0
+       ld a,d
+       rla
+
+  ;  REPEAT 8
+       rl l      ;
+       add hl,bc ;
+       jr c,$+4
+       sbc hl,bc ;
+       rla       ; t=8*45=360
+           rl l
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         rl l
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           rl l
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         rl l
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           rl l
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         rl l
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           rl l
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+  ; ENDR
+
+       ld d,a
+       ld a,e
+       rla
+
+  ; REPEAT 8
+       adc hl,hl ;
+       add hl,bc ;
+       jr c,$+4  ;8
+       sbc hl,bc ;
+       rla       ; t=8*52=416
+           adc hl,hl
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         adc hl,hl
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           adc hl,hl
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         adc hl,hl
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           adc hl,hl
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+         adc hl,hl
+         add hl,bc
+         jr c,$+4
+         sbc hl,bc
+         rla
+           adc hl,hl
+           add hl,bc
+           jr c,$+4
+           sbc hl,bc
+           rla
+  ; ENDR
+
+       ld e,a
+
+
+       ex de, hl
+       ret
+
+
+; ===== _add_string =====
+
+; Stringek osszefuzese
+; input: hl = a hol sor cime, de = a ahol sor cime
+; output: nem
+
+add_string			ld	a,(de)		; szoveg1 hossza
+				and	a		; ha = 0 akkor kilepes
+				ret	z
+
+				push	de		; szoveg1 cim elmentese (elso byte = hossz)
+
+				ld	e,(hl)		; szoveg2 hossza
+				ld	d,0
+				ld	c,a		; c = szoveg1 hossza ennyit kell masolni
+				ld	b,0
+				add	a,e		; a = szoveg1 + szoveg2
+				ld	(hl),a		; szoveg2 hossza = ket szoveg hossza egyutt
+
+				inc	hl		; szoveg2 kezdocimenek novelese mert az elso byte a hosszt mutatja
+				add	hl,de		; hl = szoveg2 cim + szoveg2 hossz
+				ex	de,hl
+
+				pop	hl		; hl = szoveg1 cim (elso byte = hossz)
+				inc	hl		; hl novelese hogy a szoveg1 szovegere mutasson
+
+				ldir			; hl --> de -be es bc-1 amig bc=0
+
+				ret
+
+
+; ===== _put_number_variable =====
+
+string_number			defb	5,0,0,0,0,0				; karakterlanc-konvertalt 16 bites szam
+number_temp			defw	0					; kozbenso 16 bites szam
+
+
+; ===== _put_string_temp =====
+
+string_temp			defb	0					; kozbenso karakterlanc valtoza
+				defs	255,32
+
+
+; ===== _array_index =====
+addr_arraybyte_index		defw	0					; cella cime egy tomb tipusban - arraybyte
+addr_arrayword_index		defw	0					; cella cime egy tomb tipusban - arrayword
+addr_arraystring_index		defw	0					; cella cime egy tomb tipusban - arraystring
+addr_arraystring_index_2	defw	0					; cella cime egy tomb tipusban - arraystring kiosztaskor
+addr_arraybyte_index111		defw	0					; cella cime egy tomb tipusban - arraybyte kiosztaskor
+addr_arrayword_index111		defw	0					; cella cime egy tomb tipusban - arrayword kiosztaskor
+
+
+; ===== _put_addr_array_string =====
+
+addr_array_string		defw	0
+addr_array_string_assign	defw	0
+
+
+; ===== _put_text_variable =====
+
+
+
+; ===== _font64 =====
+
+; szokoz es numerikus ascii kezdet
+
+s_sp             equ     32
+s__0             equ     48
+
+
+; ===== _printplot_pos =====
+
+; atmeneti tarolasra
+
+PRINTPLOT_X			defw	0
+PRINTPLOT_Y			defw	0
+
+; ===== _line_pos_vars =====
+
+; atmeneti tarolasra
+
+LINEPOS_X1			defw	0
+LINEPOS_Y1			defw	0
+LINEPOS_X2			defw	0
+LINEPOS_Y2			defw	0
+
+; ===== _printat_pos =====
+
+; atmeneti tarolasra
+
+PRINTAT_X			defb	0
+PRINTAT_Y			defb	0
+
+
+; ===== _sound_vars =====
+
+; hanggal kapcsolatos valtozok, konstansok
+
+SOUND_VOLUME		defb	0		; hangero	0-15
+SOUND_PITCH		defw	0		; hangmagassag	0-4095
+SOUND_DURATION		defw	0		; kesleltetes	1/50sec (WORD KELL!!!)
+SOUND_PORT_LO		EQU 	4 		; 0-7.bitek: sound PITCH also 8 bit 
+SOUND_PORT_HI 		EQU 	5 		; 0-3.bitek: sound PITCH felso 4 bit 
+VOLUME_PORT 		EQU 	6 		; 2-5.bitek: sound VOLUME portja 
+PORT_5_MEM_MIRROR 	EQU 	2834 		; az 5-os port tukorkepe a memoriaban 
+PORT_6_MEM_MIRROR 	EQU 	2835 		; a 6-os port tukorkepe a memoriaban
+
+
+; ===== _mirror =====
+
+mirror_max_x		defb	0
+
+
+; ===== _tvc_mem_pager =====
+
+P_SAVE              		EQU     3                           		; memoria lapozas memoria tukre
+MEM_PAGES_PORT      		EQU     2                           		; memoria lapozas beallitas portja
+SAVED_MEM_PAGES			db	0					; Bekapcsolaskori memorialapozas
+VRAM_START			EQU	$8000		; videomemoria kezdocime : 32768
+
+; ===== _tvc_palette_codes =====
+
+PALETTE_00		defb	0
+PALETTE_01		defb	0
+PALETTE_02		defb	0
+PALETTE_03		defb	0
+
+; ===== _tvc_setchar_vars =====
+
+; ujradefinialt karakter ASCII kodja - atmeneti tarolasra
+
+CHAR_NR			defb	0			; ujradefinialt karakter sorszama (0-95 , nem ascii!!)
+
+; ===== _tvc_poke_peek_vars =====
+
+; poke es peek valtozoi
+
+POKE_ADDRESS		defw	0
+POKE_DATA		defb	0
+PEEK_ADDRESS		defw	0
+
+; ===== _logical_vars =====
+
+; AndByte, OrByte, XorByte valtozoi
+
+LOGICAL_A		defb	0
+LOGICAL_B		defb	0
+
+; ===== _sprite_vars =====
+
+; sprite koordinatak, felulirasi mod (0=feluliras, 1=and, 2=or, 3=xor)
+
+SPRITE_X		defb	0
+SPRITE_Y		defb	0
+SPRITE_WIDTH		defb	0
+SPRITE_HEIGHT		defb	0
+SPRITE_DRAW_MODE	defb	0
+SPRITE_DATA_ADDRESS	defw	0	; itt kezdodnek a sprite adatok (szel, magassag, dat1, dat2, dat3, ....)
+SPRITE_SP_SAVE		db	0	; ide mentjuk el SP-t az XOR kirakasnal

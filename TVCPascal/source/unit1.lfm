@@ -1,0 +1,136 @@
+object Form1: TForm1
+  Left = 570
+  Height = 100
+  Top = 391
+  Width = 225
+  ActiveControl = CheckBox1
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsNone
+  Caption = 'ZX Like Pascal compiler'
+  ClientHeight = 100
+  ClientWidth = 225
+  Color = clBtnFace
+  Font.Color = clWindowText
+  Font.Height = -10
+  Font.Name = 'MS Sans Serif'
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  ShowInTaskBar = stNever
+  LCLVersion = '2.0.6.0'
+  object Label2: TLabel
+    Left = 200
+    Height = 11
+    Top = 216
+    Width = 85
+    Caption = 'Compile address:'
+    ParentColor = False
+    Visible = False
+  end
+  object CheckBox1: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 16
+    Width = 121
+    Caption = 'Text with attributes'
+    TabOrder = 0
+    Visible = False
+  end
+  object CheckBox2: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 40
+    Width = 145
+    Caption = 'Windows with attributes'
+    TabOrder = 1
+    Visible = False
+  end
+  object CheckBox3: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 64
+    Width = 135
+    Caption = 'Sprites with attributes'
+    TabOrder = 2
+    Visible = False
+  end
+  object CheckBox4: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 88
+    Width = 158
+    Caption = 'Map sprites with attributes'
+    TabOrder = 3
+    Visible = False
+  end
+  object CheckBox5: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 112
+    Width = 149
+    Caption = 'Edge checking for sprites'
+    TabOrder = 4
+    Visible = False
+  end
+  object CheckBox6: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 136
+    Width = 164
+    Caption = 'Text output to virtual screen'
+    TabOrder = 5
+    Visible = False
+  end
+  object CheckBox7: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 160
+    Width = 173
+    Caption = 'Sprite output to virtual screen'
+    TabOrder = 6
+    Visible = False
+  end
+  object CheckBox8: TCheckBox
+    Left = 248
+    Height = 23
+    Top = 184
+    Width = 165
+    Caption = 'Map output to virtual screen'
+    TabOrder = 7
+    Visible = False
+  end
+  object Edit1: TEdit
+    Left = 288
+    Height = 24
+    Top = 216
+    Width = 41
+    TabOrder = 8
+    Text = '6639'
+    Visible = False
+  end
+  object GroupBox1: TGroupBox
+    Left = 8
+    Height = 81
+    Top = 8
+    Width = 208
+    Caption = 'Pascal forrás fordítása...'
+    ClientHeight = 67
+    ClientWidth = 206
+    TabOrder = 9
+    object btnPascalToASM: TButton
+      Left = 24
+      Height = 28
+      Top = 16
+      Width = 144
+      Caption = 'Fájl kiválasztása és fordítás'
+      OnClick = btnPascalToASMClick
+      TabOrder = 0
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Filter = 'Pascal program|*.pas;*.PAS'
+    left = 80
+    top = 104
+  end
+end

@@ -1,0 +1,39 @@
+GRAPHICS utasítás felvitele: (használat: graphics(x) -x a grafikus üzemmód - 0=2-es, 1=4-es, 2=16-os):
+
+1. libasm.lib               -bővítése az assembly kóddal (fontos az egyenlőségjelek száma -koppintani kell egy már meglévőt...)
+
+2. value_mas_lib=;                     -növelése
+
+3. Token     = (....)                    -bővítése a lib-ből (pl.:_graphics)
+
+4. MaxToken  = Ord(                      - beállítása az utolsó elemre (pl.: _graphics)
+
+5. TokenName : Array[....]               -bővítése nagybetűkkel (pl.: 'GRAPHICS')
+
+6. procedure Statement;    - bővítése   //MIVEL UTASÍTÁSRÓL VAN SZÓ!!!!!!! HA FÜGGVÉNY LENNE AKKOR A "function  Value:integer;" KELL BŐVÍTENI PL.: _random
+
+    6.1 GenCode('_Call',0,'graphics','','','');  - hívásakor a 'graphics' a libasm.lib -ben megadott asm függvény, erre a cimkére fog ugrani!!
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Több paraméter átadása példa :
+
+(col_window, row_window, width_window, height_window  -változók a libasm.lib-ben vannak hogy ezeket befordítsuk engedélyezni kell a
+Mas_Lib[15].name:='_window' -t !!)
+
+ _windowset : begin
+                Match(_windowset);
+                Match(_lparen);
+                Expression;
+                GenCode('_StoreByte',0,'col_window','','','');
+                Match(_comma);
+                Expression;
+                GenCode('_StoreByte',0,'row_window','','','');
+                Match(_comma);
+                Expression;
+                GenCode('_StoreByte',0,'width_window','','','');
+                Match(_comma);
+                Expression;
+                GenCode('_StoreByte',0,'height_window','','','');
+                Match(_rparen);

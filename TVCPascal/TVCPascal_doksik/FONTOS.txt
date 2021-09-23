@@ -1,0 +1,6 @@
+
+1. Az END. után beírt kódok fordítás nélkül egy az egyben kerülnek be az asm-be!!
+
+2. Az include az END. után működik: include "fuggv.asm"!!
+
+3. Kis és nagybetű nem számít különbségnek!

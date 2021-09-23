@@ -1,0 +1,56 @@
+Hang terv:
+
+SoundInit
+SoundStop			-Hang kikapcsolasa DURATION-t nullazni kell!!!!
+SoundVolume(n)			-Hangero beallitasa
+SoundPlaying			-Ha = 1 akkor folyik egy hang lejatszasa, ha = 0 akkor johet a kovetkezo hang (hl adja vissza)
+SoundPlay(varPitch, varDur)	-Hang lejatszas elinditasa (hangmagassag, lejatszas ideje) 
+	-pitch,dur adatok beírása: SOUND_PITCH	es SOUND_DURATION valtozokba	
+
+
+Zenek tombokben : 
+hatterzene	: array [1..100] : word = [pitch1,dur1, pitch2,dur2, pitch3,dur3,......, pitch100,dur100];
+loves 		: array [1..20] : word = [pitch1,dur1, pitch2,dur2, pitch3,dur3,......, pitch20,dur20];
+
+bLoves 				: byte = 0;	{ha = 1 akkor bumm van}
+bHatterzene_index, bLoves_index	: byte = 1;	{aktualis hang szama az elso hangot kell lejatszani}
+bHatterzene_max			: byte = 100;	{hatterzene tomb max}
+bLoves_max			: byte = 20;	{loves zene tomb max}
+
+bBillKod	: byte;
+
+
+
+repeat
+
+	bBillKod:=GetKeyMatrixState(7);	
+	
+	if (AndByte(bBillKod, 32) <> 0) and (bLoves = 0) then
+	begin
+		{SPACE = loves ha nincs folyamatban}
+		bLoves := 1;
+		SoundStop();
+		bLoves_index := 1;
+		SoundVolume(15);		{loves jo hangos legyen}
+	end;
+	
+	if (SoundPlaying() = 0) and (bLoves = 0) then 
+	begin
+		bHatterzene_index := bHatterzene_index + 2;
+		if bHatterzene_index > bHatterzene_max then bHatterzene_index := 1;
+		SoundPlay(hatterzene[bHatterzene_index], hatterzene[bHatterzene_index + 1]);   {kovetkezo hang lejatszasa}
+	end;
+	if (SoundPlaying() = 0) and (bLoves = 1)  then
+	begin
+		SoundPlay(loves[bLoves_index], loves[bLoves_index + 1]);   {kovetkezo hang lejatszasa}
+		bLoves_index := bLoves_index + 1;
+		if (bLoves_index > bLoves_max) then
+		begin
+			{loves vege, mehet tovabb a hetterzene...}
+			bLoves := 0;
+			SoundVolume(8);		{hatterzene kicsit halkabban megyen}
+		end;
+	end;
+		
+		
+until;

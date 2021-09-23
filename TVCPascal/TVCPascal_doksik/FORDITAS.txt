@@ -1,0 +1,17 @@
+Test1.pas -tvc pascal fájl fordítása .CAS -ra:
+
+Linux:
+
+pre: pasmo és wine telepítések!
+
+1.  ./TVCPascal Test1.pas
+2.  pasmo -v --bin Test1.asm Test1.bin
+3.  wine TVCTape.exe Test1.bin Test1.cas
+
+===================================================================
+
+Windows:
+
+1.  ./TVCPascal.exe Test1.pas
+2.  pasmo.exe -v --bin Test1.asm Test1.bin
+3.  TVCTape.exe Test1.bin Test1.cas

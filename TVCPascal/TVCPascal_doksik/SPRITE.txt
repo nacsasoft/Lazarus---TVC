@@ -1,0 +1,59 @@
+1. Belapozom mind a 64K-t (U0,U1,U2,U3), hogy hozzáférjek mindenhez a memóriában. Ez az alapértelmezett belapozás.
+
+2. MInden sprite- és, képdarab-kirakót úgy írok meg, hogy $8000-es cím helyett 16K-val fentebb $C000-tól kezdődően kezelje a "képernyőt", 
+	ami így egy háttér-puffer (backbuffer) lesz. Emiatt is kell a fenti belapozás, mert ott alapból a SYS lenne.
+
+3. Minde sprite-om mögött van egy adatstruktúra, amiben mindenféle tulajdonsága van, de ebből most a fontosak:
+	- előző címe a backbufferben
+	- aktuális címe a backbufferben
+	- szélessége byte-okban
+	- magassága pixelben
+	- és egy flag, hogy kell-e frissíteni (elmozdult-e)
+
+4. Amikor mozgatok egy sprite-ot, akkor ugyanazt csinálom, mint a doksiban:
+	- visszarakom a korábban elmentett hátterét
+	- elmozgatom az új pozícióba
+	- elmentem az új pozícióból a hátterét és itt elmentem, hogy hova kell majd visszarakni a hátteret
+	- kirakom a sprite-ot maszkolva az új pozícióba
+ÉRDEKESSÉG: érdemes egy ciklusban menteni a hátteret és kirakni a maszkot, majd rákeverni a sprite-ot, mivel összeségében ez gyorsabb, 
+	mint előbb menteni, majd maszkoltani kirakni. Ez egyébként nem rég optimalizáltam ki. Nem túl nagy a különbség, de eljöhet az 
+	a pillanat, amikor jól jöhet :)
+
+5. Amikor minden sprite-ot elmozgattam a backbufferben az adott ciklusban és megtörtént minden más "logika" is, akkor megvárom a 
+	cursor-megszakítást: HALT, majd belapozom a videomemóriát: U0,U1,VID,U3.
+
+6. Végigmegyek a sprite-okon - nekem egy listában van minden mozgó és működő "objectum" - és aminél a flag úgy áll, hogy frissíteni kell, 
+	ott a backbufferből kimásolom a képernyőre a sprite méretei alapján szükséges négyzetet+amennyit elmozdult. Ez már csak sima 
+	másolás. így sokkal gyorsabb, mint egy háttér vissza + maszkolt kirakás, ami miatt jó eséllyel belefér a képernyőfrissítési időbe.
+	Az elmozdulás lehetséges irányai miatt a befoglaló négyzet meghatározása egyedi lehet, ez az adott játéktól függ. Hogy hová kell 
+	másolni a backbufferből, az pedig nagyon egyszerű, hiszem a backbuferes címéből csak le kell vonni 16K-t.
+
+7. Ha minden kifrissült, akkor visszalapozom a memóriát a teljes 64K RAM-ra (U0,U1,U2,U3), hogy a kód szabadon hozzáférhessen minden 
+	adathoz a következő ciklusban.
+	
+	
+Sprite (objectum)-lista:
+a lista elemei struktúrák, amiről fentebb már írtam és ami IX és/vagy IY regiszterekkel jól címezhetők, bár ez a címzés kicsit lassabb, 
+mint mondjuk HL-el, cserében indexelhető, így bizonyos esetekben még akár gyorsabb is lehet, mint HL-t vagy DL-t menteni, léptetgetni, 
+visszaállítani.
+
+Pl. egy sprite struktúra:
+X_POS DB 0
+
+Y_POS DB 0
+
+WIDTH DB 0
+
+HEIGHT DB 0
+
+BACGROUND_ADDR DW 0
+
+BACKBUFFER_POS DW 0
+
+SPRITE_ADDR DW 0
+
+MASK_ADDR DW 0
+
+NEED_REFRESH DB 0
+
+Szóval ez a lista igazából egy összefüggő memória, aminek a mérete = a struktúra mérete szorozva a sprite-ok darabszámával.

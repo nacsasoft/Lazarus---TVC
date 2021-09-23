@@ -1,0 +1,20 @@
+Paraméter(ek) átvétele eljárásból és rögzítése a libasm.lib -ben:
+
+{*
+Átvett paramétertípus ellenörzése:
+	Var
+		sx : string;
+	begin
+		sx := GetName;
+		if LookSymbol(sx)<>_Byte then Abort('Uncompatible type');
+*}
+
+
+
+{* libas.lib -ben meg kell határozni a változókat: *}
+; ===== _printplot_pos =====
+
+printplot_x			defw	0					; képernyo bal also sarka!!
+printplot_y			defw	0
+
+

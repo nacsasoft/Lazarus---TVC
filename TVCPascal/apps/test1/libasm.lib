@@ -30,7 +30,8 @@ set_cursor_it		LD A,(SPRITE_Y)		; A = SHIP_Y
 			LD A,15 
 			OUT ($70),A 	; cursor-megszak.poz.also byte reg.
 			LD A,L
-			OUT ($70),A 	; kiszamolt also byte kikuldese
+			OUT ($71),A 	; kiszamolt also byte kikuldese
+			; Javitva Kiss K. javallatara: OUT ($70),A 	; kiszamolt also byte kikuldese
 			; karaktersorban a kezdo- es befejezo TV sor beallitasa
 			LD A,10
 			OUT ($70),A 	; kezdo TV sort beallito regiszterenek kivalasztasa
